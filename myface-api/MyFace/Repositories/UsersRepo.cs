@@ -15,6 +15,7 @@ namespace MyFace.Repositories
         User Create(CreateUserRequest newUser);
         User Update(int id, UpdateUserRequest update);
         void Delete(int id);
+        User GetUserByUsername( string username );
     }
 
     public class UsersRepo : IUsersRepo
@@ -100,6 +101,11 @@ namespace MyFace.Repositories
             var user = GetById(id);
             _context.Users.Remove(user);
             _context.SaveChanges();
+        }
+
+        public User GetUserByUsername(string username)
+        {
+            return _context.Users.SingleOrDefault(u => u.Username == username);
         }
     }
 }
