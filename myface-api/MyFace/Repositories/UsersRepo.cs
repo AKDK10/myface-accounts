@@ -61,6 +61,7 @@ namespace MyFace.Repositories
 
         public User Create(CreateUserRequest newUser)
         {
+            var salt = PasswordHelper.GetRandomSalt();
             var insertResponse = _context.Users.Add(new User
             {
                 FirstName = newUser.FirstName,
@@ -69,8 +70,8 @@ namespace MyFace.Repositories
                 Username = newUser.Username,
                 ProfileImageUrl = newUser.ProfileImageUrl,
                 CoverImageUrl = newUser.CoverImageUrl,
-                Salt = PasswordHelper.GetRandomSalt(),
-                HashedPassword = PasswordHelper.GetHashedPassword(password, salt),
+                Salt = salt,
+                HashedPassword = PasswordHelper.GetHashedPassword(newUser.Password, salt),
             });
             _context.SaveChanges();
 
