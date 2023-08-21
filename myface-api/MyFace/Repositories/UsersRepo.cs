@@ -70,7 +70,7 @@ namespace MyFace.Repositories
                 ProfileImageUrl = newUser.ProfileImageUrl,
                 CoverImageUrl = newUser.CoverImageUrl,
                 Salt = PasswordHelper.GetRandomSalt(),
-                HashedPassword = PasswordHelper.GetHashedPassword(string password, byte[] salt),
+                HashedPassword = PasswordHelper.GetHashedPassword(password, salt),
             });
             _context.SaveChanges();
 
