@@ -6,8 +6,9 @@ using System;
 public interface IAuthService
 {
     bool VerifyBasicCredentials(string authorizationHeader);
+    bool VerifyCredentials(string username, string password);
 }
-public class AuthService: IAuthService
+public class AuthService : IAuthService
 {
     private readonly IUsersRepo _usersRepo;
 
@@ -26,14 +27,20 @@ public class AuthService: IAuthService
             string username = credentials[0];
             string password = credentials[1];
 
-            var user = _usersRepo.GetUserByUsername(username);
-
-            if (user != null && PasswordHelper.GetHashedPassword(password, user.Salt) == user.HashedPassword)
-            {
-                return true;
-            }
+            return VerifyCredentials(username, password);
         }
 
+        return false;
+    }
+
+    public bool VerifyCredentials(string username, string password)
+    {
+        var user = _usersRepo.GetUserByUsername(username);
+       
+        if (user != null && PasswordHelper.GetHashedPassword(password, user.Salt) == user.HashedPassword)
+        {
+            return true;
+        }
         return false;
     }
 
