@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using System.Net;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using MyFace.Models.Request;
 using MyFace.Models.Response;
 using MyFace.Repositories;
@@ -10,20 +12,27 @@ namespace MyFace.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUsersRepo _users;
+        private readonly IAuthService _authService;
 
-        public UsersController(IUsersRepo users)
+        public UsersController(IUsersRepo users, IAuthService authService)
         {
             _users = users;
+            _authService = authService;
         }
         
         [HttpGet("")]
         public ActionResult<UserListResponse> Search([FromQuery] UserSearchRequest searchRequest)
         {
+            var hasAuthHeader = Request.Headers.TryGetValue("Authorization", out var authHeader);
+            if (!hasAuthHeader || !_authService.VerifyBasicCredentials(authHeader))
+            {
+                return Unauthorized();
+            }
             var users = _users.Search(searchRequest);
             var userCount = _users.Count(searchRequest);
             return UserListResponse.Create(searchRequest, users, userCount);
         }
-        
+
         [HttpGet("{id}")]
         public ActionResult<UserResponse> GetById([FromRoute] int id)
         {

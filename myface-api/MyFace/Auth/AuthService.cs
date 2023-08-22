@@ -3,11 +3,15 @@ using MyFace.Helpers;
 using MyFace.Models.Database;
 using System;
 
-public class AuthenticationService
+public interface IAuthService
+{
+    bool VerifyBasicCredentials(string authorizationHeader);
+}
+public class AuthService: IAuthService
 {
     private readonly IUsersRepo _usersRepo;
 
-    public AuthenticationService(IUsersRepo usersRepo)
+    public AuthService(IUsersRepo usersRepo)
     {
         _usersRepo = usersRepo;
     }
