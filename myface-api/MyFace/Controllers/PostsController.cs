@@ -8,17 +8,24 @@ namespace MyFace.Controllers
     [ApiController]
     [Route("/posts")]
     public class PostsController : ControllerBase
-    {    
+    {
         private readonly IPostsRepo _posts;
+        private readonly IAuthService _authService;
 
-        public PostsController(IPostsRepo posts)
+        public PostsController(IPostsRepo posts, IAuthService authService)
         {
             _posts = posts;
+            _authService = authService;
         }
-        
+
         [HttpGet("")]
         public ActionResult<PostListResponse> Search([FromQuery] PostSearchRequest searchRequest)
         {
+            var hasAuthHeader = Request.Headers.TryGetValue("Authorization", out var authHeader);
+            if (!hasAuthHeader || !_authService.VerifyBasicCredentials(authHeader))
+            {
+                return Unauthorized();
+            }
             var posts = _posts.Search(searchRequest);
             var postCount = _posts.Count(searchRequest);
             return PostListResponse.Create(searchRequest, posts, postCount);
@@ -38,7 +45,7 @@ namespace MyFace.Controllers
             {
                 return BadRequest(ModelState);
             }
-            
+
             var post = _posts.Create(newPost);
 
             var url = Url.Action("GetById", new { id = post.Id });
